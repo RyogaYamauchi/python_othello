@@ -92,17 +92,17 @@ class OthelloServer():
 
     def put_request_case(self, request):
             user_id = request['user_id']
-            x = request['x']
-            y = request['y']
+            x = int(request['x'])
+            y = int(request['y'])
             print("received put data! from: " + str(user_id))
             can_put = self.can_put(x, y, self.current_turn_player.cell_type)
             self.send_put_response(user_id, can_put)
             if not can_put:
                 return
-            # ターンを変更
-            self.change_turn()
             # 盤面をアップデート
             self.put_board(x, y)
+            # ターンを変更
+            self.change_turn()
             print(str(self.board))
             # 全員に盤面情報を送信
             self.send_all_update_request()
@@ -167,8 +167,6 @@ class OthelloServer():
 
     # x, yの座標から全ての方向にチェックを行いひっくり返せるcellのlistを返す
     def get_target_all_cells(self, x, y, player):
-        x = int(x)
-        y = int(y)
         # すでに配置されていた場合、[]を返す
         if not (self.board[x][y] == cell_type.Undefined):
             return []
@@ -214,5 +212,9 @@ if __name__ == "__main__":
         user_id2 = args[2]
         users.append(player.Player(user_id1, cell_type.PLAYER1))
         users.append(player.Player(user_id2, cell_type.PLAYER2))
+    #user_id1 = 1
+    #user_id2 = 2
+    #users.append(player.Player(user_id1, cell_type.PLAYER1))
+    #users.append(player.Player(user_id2, cell_type.PLAYER2))
     OthelloServer(users)
 

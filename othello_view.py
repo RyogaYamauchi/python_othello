@@ -18,6 +18,9 @@ class OthelloView(tkinter.Frame):
         self.render_board()
         self.set_binds()
 
+    def set_title(self, title):
+        self.root.title(title)
+
     # ボードの画面描画
     def render_board(self):
         self.canvas.create_rectangle(0, 0, self.canvas_size, self.canvas_size, fill="#4db56a")
@@ -53,9 +56,9 @@ class OthelloView(tkinter.Frame):
         x_pos = one_size * x
         y_pos = one_size * y
         if value != cell_type.Undefined:
-            if value == cell_type.PLAYER:
+            if value == cell_type.PLAYER1:
                 color = '#ffffff'
-            if value == cell_type.COM:
+            if value == cell_type.PLAYER2:
                 color = '#000000'
             if value == cell_type.PREDICTIVE:
                 color = '#fffacd'

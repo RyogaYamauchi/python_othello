@@ -12,10 +12,10 @@ class OthelloModel:
         self.view = view
         self.board = [[cell_type.Undefined for j in range(board_size)] for i in range(board_size)]
         center = math.floor(board_size / 2)
-        self.board[center - 1][center] = cell_type.PLAYER
-        self.board[center][center - 1] = cell_type.PLAYER
-        self.board[center][center] = cell_type.COM
-        self.board[center - 1][center - 1] = cell_type.COM
+        self.board[center - 1][center] = cell_type.PLAYER1
+        self.board[center][center - 1] = cell_type.PLAYER1
+        self.board[center][center] = cell_type.PLAYER2
+        self.board[center - 1][center - 1] = cell_type.PLAYER2
         self.on_changed_board()
         self.is_player_turn = True
 
@@ -36,11 +36,11 @@ class OthelloModel:
     # x,yから状態を変更してviewに通知する
     # 状態が変更できない場合はFalse、できる場合・した場合はTrueを返す
     def put_player(self, x, y):
-        cells = self.get_target_all_cells(x, y, cell_type.PLAYER)
+        cells = self.get_target_all_cells(x, y, cell_type.PLAYER1)
         if len(cells) > 0:
-            self.board[x][y] = cell_type.PLAYER
+            self.board[x][y] = cell_type.PLAYER1
             for i, j in cells:
-                self.board[i][j] = cell_type.PLAYER
+                self.board[i][j] = cell_type.PLAYER1
                 self.on_changed_board()
             return True
         return False
@@ -61,13 +61,7 @@ class OthelloModel:
 
     # x, yの座標からdirection_x, direction_yの方向にチェックを行いひっくり返せるcellのlistを返す
     def get_target_cells(self, x, y, direction_x, direction_y, player_or_com):
-        opponent_cell_type = cell_type.COM if player_or_com == cell_type.PLAYER else cell_type.PLAYER
-        # if player_or_com == cell_type.PLAYER: #素直に！
-        #     me = cell_type.PLAYER
-        #     enemy = cell_type.COM
-        # else:
-        #     me = cell_type.COM
-        #     enemy = cell_type.PLAYER
+        opponent_cell_type = cell_type.PLAYER1 if player_or_com == cell_type.PLAYER1 else cell_type.PLAYER2
 
         target_cell_list = []
         current_x = x
@@ -95,7 +89,7 @@ class OthelloModel:
     # 勝敗がついていなければNoneを返す
     def judge(self):
         one_d_array = list(itertools.chain.from_iterable(self.board))
-        player_count = len([1 for cell in one_d_array if cell == cell_type.PLAYER]) #条件付きSUM
+        player_count = len([1 for cell in one_d_array if cell == cell_type.PLAYER1]) #条件付きSUM
         com_count = len([1 for cell in one_d_array if cell == cell_type.COM]) #条件付きSUM
 
         # 全てのセルが埋まったとき
@@ -113,32 +107,6 @@ class OthelloModel:
     def are_all_cells_defined(self):
         one_d_array = list(itertools.chain.from_iterable(self.board))
         return all([not (cell == cell_type.Undefined or cell == cell_type.PREDICTIVE) for cell in one_d_array])
-
-    # コンピュータの手を打つ
-    # 全てのcellに対し、チェックを行いひっくり返せる数が最大のcellにコマをおく
-    def change_com(self):
-        while True:
-            max_count = 0
-            max_cell = (-1, -1) # COMが入力できるマスの座標
-            max_values = [] # COMが入力できるマスの中で最大のマスリスト
-            for i in range(self.board_size):
-                for j in range(self.board_size):
-                    cells = self.get_target_all_cells(i, j, cell_type.COM) # COMが入力できる全てのマスを取得
-                    count = len(cells) #
-                    if count > max_count:
-                        max_count = count
-                        max_cell = (i, j)
-                        max_values = cells
-            x, y = max_cell
-            self.board[x][y] = cell_type.COM
-            for cell in max_values:
-                x, y = cell
-                self.board[x][y] = cell_type.COM
-            if self.can_put(cell_type.PLAYER):
-                break
-            elif self.are_all_cells_defined():
-                return
-        self.on_changed_board()
 
     # 全てのcellに対し、入力されたcell_typeの置く場所があるかを判定する
     def can_put(self, player_or_com):
@@ -159,7 +127,7 @@ class OthelloModel:
         target_cells = []
         for i in range(self.board_size):
             for j in range(self.board_size):
-                cells = self.get_target_all_cells(i, j, cell_type.PLAYER)
+                cells = self.get_target_all_cells(i, j, cell_type.PLAYER1)
                 if len(cells) > 0:
                     target_cells.append((i, j))
         for x, y in set(target_cells):
